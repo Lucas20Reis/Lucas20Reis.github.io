@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta name="referrer" content="no-referrer-when-downgrade">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EcoClick: O Jogo da Reciclagem</title>
+  <style>
+    /* Existing styles */
+    #awareness-popup {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #4CAF50;
+      color: white;
+      padding: 15px;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+      z-index: 1000;
+      display: none;
+    }
+
+    #importance-section {
+      background-color: #81C784;
+      color: #1B5E20;
+      padding: 20px;
+      border-radius: 8px;
+      margin-top: 20px;
+      text-align: left;
+    }
+
+    #importance-section h3 {
+      color: #1B5E20;
+      margin-bottom: 10px;
+    }
+
+    #importance-section p {
+      margin-bottom: 10px;
+    }
+
+    #stats-menu {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      z-index: 1000;
+    }
+
+    #stats-modal {
+      display: none;
+      position: fixed;
+      z-index: 1001;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0, 0, 0, 0.4);
+    }
+
+    #stats-content {
+      background-color: #fefefe;
+      margin: 15% auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 80%;
+      max-width: 600px;
+      border-radius: 10px;
+    }
+
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+    }
+
+    .close:hover,
+    .close:focus {
+      color: black;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .stat-item {
+      margin-bottom: 10px;
+    }
+
+    .upgrade-category {
+      margin-top: 20px;
+      padding: 10px;
+      background-color: #e0f2f1;
+      border-radius: 8px;
+    }
+
+    .upgrade-category h3 {
+      color: #00695c;
+      margin-bottom: 10px;
+    }
+
+    .upgrade-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 10px;
+    }
+
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: #e8f5e9;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    #game-container {
+      background-color: #ffffff;
+      border-radius: 15px;
+      padding: 30px;
+      box-shadow: 0 0 20px rgba(76, 175, 80, 0.2);
+      text-align: center;
+      max-width: 1000px;
+      width: 100%;
+    }
+
+    h1 {
+      color: #2e7d32;
+      margin-bottom: 20px;
+    }
+
+    #recycle-bin {
+      width: 120px;
+      height: 120px;
+      background-color: #4CAF50;
+      border-radius: 50%;
+      margin: 20px auto;
+      cursor: pointer;
+      transition: transform 0.1s, box-shadow 0.3s;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      user-select: none;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+    }
+
+    #recycle-bin:hover {
+      box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    #recycle-bin:active {
+      transform: scale(0.95);
+    }
+
+    #recycle-icon {
+      font-size: 60px;
+      color: white;
+    }
+
+    .stats {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-around;
+      margin-bottom: 20px;
+      font-size: 18px;
+    }
+
+    .stat {
+      background-color: #c8e6c9;
+      padding: 10px;
+      border-radius: 8px;
+      min-width: 120px;
+      margin: 5px;
+      flex-grow: 1;
+    }
+
+    .upgrades {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    button {
+      background-color: #66bb6a;
+      border: none;
+      color: white;
+      padding: 12px 20px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      margin: 4px 2px;
+      cursor: pointer;
+      border-radius: 8px;
+      transition: background-color 0.3s, transform 0.1s;
+    }
+
+    button:hover {
+      background-color: #4CAF50;
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    button:disabled {
+      background-color: #a5d6a7;
+      cursor: not-allowed;
+    }
+
+    #message {
+      margin-top: 20px;
+      font-style: italic;
+      color: #4CAF50;
+    }
+
+    #event-banner {
+      background-color: #FFA726;
+      color: white;
+      padding: 10px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      display: none;
+    }
+
+    #prestige-section {
+      background-color: #9575CD;
+      color: white;
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 20px;
+    }
+
+    #advanced-upgrades {
+      background-color: #4DB6AC;
+      color: white;
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 20px;
+    }
+
+    #prestige-store {
+      background-color: #FF8A65;
+      color: white;
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 20px;
+    }
+
+    .upgrade-description {
+      font-size: 0.8em;
+      margin-top: 5px;
+      color: #004d40;
+    }
+
+    .store-item {
+      background-color: rgba(255, 255, 255, 0.1);
+      border-radius: 5px;
+      padding: 10px;
+      margin-top: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .store-item button {
+      background-color: #FF5722;
+    }
+
+    .store-item button:hover {
+      background-color: #E64A19;
+    }
+
+    #negative-event-banner {
+      background-color: #F44336;
+      color: white;
+      padding: 10px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      display: none;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="awareness-popup"></div>
+  <div id="stats-menu">Estatísticas</div>
+  <div id="stats-modal">
+    <div id="stats-content">
+      <span class="close">×</span>
+      <h2>Estatísticas do Jogo</h2>
+      <div id="stats-list"></div>
+    </div>
+  </div>
+  <div id="game-container">
+    <h1>EcoClick: O Jogo da Reciclagem</h1>
+    <div id="event-banner"></div>
+    <div id="negative-event-banner"></div>
+    <div class="stats">
+      <div class="stat">
+        <div>Itens Reciclados</div>
+        <div id="items-count">0</div>
+      </div>
+      <div class="stat">
+        <div>Itens por Clique</div>
+        <div id="items-per-click">1</div>
+      </div>
+      <div class="stat">
+        <div>Auto-Coletores</div>
+        <div id="auto-collectors">0</div>
+      </div>
+      <div class="stat">
+        <div>Eficiência Auto-Coletores</div>
+        <div id="auto-collector-efficiency">1</div>
+      </div>
+    </div>
+    <div id="recycle-bin">
+      <div id="recycle-icon">♻️</div>
+    </div>
+    <div class="upgrade-category">
+      <h3>Upgrades Básicos</h3>
+      <div class="upgrade-grid">
+        <button id="upgrade-click">Melhorar Clique<br>(Custo: <span id="upgrade-click-cost">10</span>)</button>
+        <button id="upgrade-auto">Comprar Auto-Coletor<br>(Custo: <span id="upgrade-auto-cost">50</span>)</button>
+        <button id="upgrade-efficiency">Melhorar Eficiência<br>(Custo: <span id="upgrade-efficiency-cost">100</span>)</button>
+        <button id="upgrade-auto-efficiency">Melhorar Eficiência Auto-Coletores<br>(Custo: <span id="upgrade-auto-efficiency-cost">200</span>)</button>
+      </div>
+    </div>
+    <div class="upgrade-category">
+      <h3>Upgrades Avançados</h3>
+      <div class="upgrade-grid">
+        <div>
+          <p>Nível de Tecnologia de Reciclagem: <span id="recycling-tech-level">0</span></p>
+          <button id="upgrade-recycling-tech">Melhorar Tecnologia de Reciclagem<br>(Custo: <span id="upgrade-recycling-tech-cost">1M</span>)</button>
+          <p class="upgrade-description">Aumenta a eficiência geral de reciclagem</p>
+        </div>
+        <div>
+          <p>Nível de Conscientização Global: <span id="global-awareness-level">0</span></p>
+          <button id="upgrade-global-awareness">Aumentar Conscientização Global<br>(Custo: <span id="upgrade-global-awareness-cost">100M</span>)</button>
+          <p class="upgrade-description">Aumenta o multiplicador de todos os ganhos</p>
+        </div>
+        <div>
+          <p>Nível de Inovação Verde: <span id="green-innovation-level">0</span></p>
+          <button id="upgrade-green-innovation">Impulsionar Inovação Verde<br>(Custo: <span id="upgrade-green-innovation-cost">500M</span>)</button>
+          <p class="upgrade-description">Desbloqueia novos métodos de reciclagem</p>
+        </div>
+        <div>
+          <p>Nível de Logística Sustentável: <span id="sustainable-logistics-level">0</span></p>
+          <button id="upgrade-sustainable-logistics">Otimizar Logística Sustentável<br>(Custo: <span id="upgrade-sustainable-logistics-cost">1B</span>)</button>
+          <p class="upgrade-description">Aumenta a velocidade de coleta automática</p>
+        </div>
+      </div>
+    </div>
+    <div id="prestige-section">
+      <h3>Sistema de Prestígio</h3>
+      <p>Prestígios: <span id="prestige-count">0</span></p>
+      <button id="prestige-button">Prestigiar<br>(Requer 1T itens reciclados)</button>
+    </div>
+    <div id="prestige-store">
+      <h3>Loja de Prestígio</h3>
+      <p>Pontos de Prestígio: <span id="prestige-points">0</span></p>
+      <div class="upgrade-grid">
+        <div class="store-item">
+          <span>Multiplicador de Clique: <span id="click-multiplier">1</span>x</span>
+          <button id="buy-click-multiplier">Comprar (Custo: <span id="click-multiplier-cost">1</span>)</button>
+        </div>
+        <div class="store-item">
+          <span>Bônus de Auto-Coletor: <span id="auto-collector-bonus">0</span>%</span>
+          <button id="buy-auto-collector-bonus">Comprar (Custo: <span id="auto-collector-bonus-cost">1</span>)</button>
+        </div>
+        <div class="store-item">
+          <span>Chance de Evento: <span id="event-chance">0.5</span>%</span>
+          <button id="buy-event-chance">Comprar (Custo: <span id="event-chance-cost">1</span>)</button>
+        </div>
+        <div class="store-item">
+          <span>Multiplicador de Prestígio: <span id="prestige-multiplier">1</span>x</span>
+          <button id="buy-prestige-multiplier">Comprar (Custo: <span id="prestige-multiplier-cost">5</span>)</button>
+        </div>
+      </div>
+    </div>
+    <div id="importance-section">
+      <h3>A Importância da Reciclagem</h3>
+      <p>A reciclagem é fundamental para a preservação do meio ambiente e para o futuro do nosso planeta. Ao reciclar, nós:</p>
+      <ul>
+        <li>Reduzimos a quantidade de lixo nos aterros sanitários</li>
+        <li>Economizamos recursos naturais e energia</li>
+        <li>Diminuímos a poluição do ar, água e solo</li>
+        <li>Criamos empregos na indústria de reciclagem</li>
+        <li>Contribuímos para um futuro mais sustentável</li>
+      </ul>
+      <p>Cada item reciclado faz a diferença. Juntos, podemos criar um impacto positivo no mundo!</p>
+    </div>
+    <div id="message"></div>
+  </div>
+  <script>
+    (function() {
+      let GG_ALL_GAME_CONFIG = {
+        statsUpdateInterval: 1000, // Intervalo de atualização das estatísticas em milissegundos
+        initialItemsPerClick: 1, // Quantidade inicial de itens por clique
+        awarenessMessages: [
+          "Sabia que reciclar uma lata de alumínio economiza energia suficiente para manter uma TV ligada por 3 horas?",
+          "Reciclar papel reduz a poluição do ar em 74% e a poluição da água em 35%!",
+          "Uma garrafa de vidro pode levar mais de 4.000 anos para se decompor na natureza. Recicle!",
+          "Reciclar 1 kg de plástico economiza até 1 litro de petróleo. Cada item conta!",
+          "Uma tonelada de papel reciclado salva aproximadamente 17 árvores. Faça sua parte!",
+          "Reciclar baterias evita que metais pesados contaminem o solo e a água. Descarte corretamente!",
+          "Sabia que pneus podem ser reciclados e transformados em asfalto? Incentive a reciclagem em sua comunidade!",
+          "Reciclar 1 kg de alumínio economiza energia equivalente a 10 horas de uso de um computador.",
+          "Garrafas PET podem ser transformadas em tecidos e roupas. Recicle e promova a economia circular!",
+          "A reciclagem de eletrônicos recupera metais preciosos e reduz a mineração. Recicle seus aparelhos antigos!"
+        ],
+        awarenessInterval: 60000, // Intervalo para exibir mensagens de conscientização (1 minuto)
+        initialUpgradeClickCost: 10, // Custo inicial para melhorar o clique
+        initialUpgradeAutoCost: 50, // Custo inicial para comprar um auto-coletor
+        initialUpgradeEfficiencyCost: 100, // Custo inicial para melhorar a eficiência
+        initialUpgradeMultiplierCost: 200, // Custo inicial para o multiplicador de itens
+        autoCollectorInterval: 1000,
+        upgradeClickMultiplier: 1.2,
+        upgradeAutoMultiplier: 1.5,
+        upgradeEfficiencyMultiplier: 1.3,
+        upgradeItemMultiplier: 1.4,
+        messageTimeout: 3000,
+        clickUpgradeBase: 1.5,
+        clickUpgradeExponent: 1.1,
+        eventChance: 0.005,
+        eventDuration: 60000,
+        eventMultiplier: 2,
+        prestigeRequirement: 1e12, // Requisito para prestigiar (1 trilhão de itens)
+        prestigeMultiplier: 1.5, // Multiplicador de prestígio
+        upgradeRecyclingTechCost: 1e6, // Custo inicial para o upgrade de tecnologia de reciclagem
+        upgradeRecyclingTechMultiplier: 2, // Multiplicador para o upgrade de tecnologia de reciclagem
+        upgradeGlobalAwarenessCost: 1e8, // Custo inicial para o upgrade de conscientização global
+        upgradeGlobalAwarenessMultiplier: 3, // Multiplicador para o upgrade de conscientização global
+        initialClickMultiplierCost: 1, // Custo inicial do multiplicador de clique na loja de prestígio
+        initialAutoCollectorBonusCost: 1, // Custo inicial do bônus de auto-coletor na loja de prestígio
+        initialEventChanceCost: 1, // Custo inicial do aumento de chance de evento na loja de prestígio
+        clickMultiplierIncrease: 0.1, // Aumento do multiplicador de clique por compra
+        autoCollectorBonusIncrease: 5, // Aumento do bônus de auto-coletor por compra (em porcentagem)
+        eventChanceIncrease: 0.1, // Aumento da chance de evento por compra (em porcentagem)
+        initialUpgradeAutoEfficiencyCost: 200, // Custo inicial para melhorar a eficiência dos auto-coletores
+        upgradeAutoEfficiencyMultiplier: 1.5, // Multiplicador para o upgrade de eficiência dos auto-coletores
+        negativeEventChance: 0.002, // Chance de ocorrer um evento negativo
+        negativeEventDuration: 30000, // Duração do evento negativo em milissegundos
+        negativeEventMultiplier: 0.5, // Multiplicador de perda de itens durante eventos negativos
+        upgradeGreenInnovationCost: 5e8, // Custo inicial para o upgrade de inovação verde
+        upgradeGreenInnovationMultiplier: 2.5, // Multiplicador para o upgrade de inovação verde
+        upgradeSustainableLogisticsCost: 1e9, // Custo inicial para o upgrade de logística sustentável
+        upgradeSustainableLogisticsMultiplier: 2, // Multiplicador para o upgrade de logística sustentável
+        initialPrestigeMultiplierCost: 5, // Custo inicial do multiplicador de prestígio na loja de prestígio
+        prestigeMultiplierIncrease: 0.1, // Aumento do multiplicador de prestígio por compra
+      };
+      let gameState = {
+        itemsCount: 0,
+        itemsPerClick: GG_ALL_GAME_CONFIG.initialItemsPerClick,
+        upgradeClickCost: GG_ALL_GAME_CONFIG.initialUpgradeClickCost,
+        upgradeAutoCost: GG_ALL_GAME_CONFIG.initialUpgradeAutoCost,
+        upgradeEfficiencyCost: GG_ALL_GAME_CONFIG.initialUpgradeEfficiencyCost,
+        autoCollectors: 0,
+        efficiency: 1,
+        clickUpgradeLevel: 0,
+        isEventActive: false,
+        prestigeCount: 0,
+        recyclingTechLevel: 0,
+        globalAwarenessLevel: 0,
+        prestigePoints: 0,
+        clickMultiplier: 1,
+        clickMultiplierCost: GG_ALL_GAME_CONFIG.initialClickMultiplierCost,
+        autoCollectorBonus: 0,
+        autoCollectorBonusCost: GG_ALL_GAME_CONFIG.initialAutoCollectorBonusCost,
+        eventChance: GG_ALL_GAME_CONFIG.eventChance,
+        eventChanceCost: GG_ALL_GAME_CONFIG.initialEventChanceCost,
+        autoCollectorEfficiency: 1,
+        upgradeAutoEfficiencyCost: GG_ALL_GAME_CONFIG.initialUpgradeAutoEfficiencyCost,
+        isNegativeEventActive: false,
+        greenInnovationLevel: 0,
+        sustainableLogisticsLevel: 0,
+        prestigeMultiplier: 1,
+        prestigeMultiplierCost: GG_ALL_GAME_CONFIG.initialPrestigeMultiplierCost
+      };
+
+      function formatNumber(num) {
+        if (num < 1e6) {
+          return num.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+        const alphabet = 'abcdefghijklmnopqrstuvwxyz';
+        const log = Math.floor(Math.log(num) / Math.log(1e6));
+        const prefix = num / Math.pow(1e6, log);
+        let suffix = '';
+        if (log <= 26) {
+          suffix = alphabet[log - 1];
+        } else {
+          const first = Math.floor((log - 1) / 26) - 1;
+          const second = (log - 1) % 26;
+          suffix = alphabet[first] + alphabet[second];
+        }
+        return prefix.toFixed(3) + suffix;
+      }
+
+      function updateDisplay() {
+        document.getElementById('items-count').textContent = formatNumber(Math.floor(gameState.itemsCount));
+        document.getElementById('items-per-click').textContent = formatNumber(Math.floor(calculateItemsPerClick()));
+        updateStats();
+        document.getElementById('upgrade-click-cost').textContent = formatNumber(gameState.upgradeClickCost);
+        document.getElementById('upgrade-auto-cost').textContent = formatNumber(gameState.upgradeAutoCost);
+        document.getElementById('upgrade-efficiency-cost').textContent = formatNumber(gameState.upgradeEfficiencyCost);
+        document.getElementById('auto-collectors').textContent = formatNumber(gameState.autoCollectors);
+        document.getElementById('auto-collector-efficiency').textContent = formatNumber(gameState.autoCollectorEfficiency);
+        document.getElementById('upgrade-click').disabled = gameState.itemsCount < gameState.upgradeClickCost;
+        document.getElementById('upgrade-auto').disabled = gameState.itemsCount < gameState.upgradeAutoCost;
+        document.getElementById('upgrade-efficiency').disabled = gameState.itemsCount < gameState.upgradeEfficiencyCost;
+        document.getElementById('upgrade-auto-efficiency').disabled = gameState.itemsCount < gameState.upgradeAutoEfficiencyCost;
+        document.getElementById('upgrade-auto-efficiency-cost').textContent = formatNumber(gameState.upgradeAutoEfficiencyCost);
+        document.getElementById('prestige-count').textContent = gameState.prestigeCount;
+        document.getElementById('prestige-button').disabled = gameState.itemsCount < GG_ALL_GAME_CONFIG.prestigeRequirement;
+        document.getElementById('upgrade-recycling-tech').disabled = gameState.itemsCount < Math.pow(GG_ALL_GAME_CONFIG.upgradeRecyclingTechMultiplier, gameState.recyclingTechLevel) * GG_ALL_GAME_CONFIG.upgradeRecyclingTechCost;
+        document.getElementById('upgrade-global-awareness').disabled = gameState.itemsCount < Math.pow(GG_ALL_GAME_CONFIG.upgradeGlobalAwarenessMultiplier, gameState.globalAwarenessLevel) * GG_ALL_GAME_CONFIG.upgradeGlobalAwarenessCost;
+        document.getElementById('recycling-tech-level').textContent = gameState.recyclingTechLevel;
+        document.getElementById('global-awareness-level').textContent = gameState.globalAwarenessLevel;
+        document.getElementById('upgrade-recycling-tech-cost').textContent = formatNumber(Math.pow(GG_ALL_GAME_CONFIG.upgradeRecyclingTechMultiplier, gameState.recyclingTechLevel) * GG_ALL_GAME_CONFIG.upgradeRecyclingTechCost);
+        document.getElementById('upgrade-global-awareness-cost').textContent = formatNumber(Math.pow(GG_ALL_GAME_CONFIG.upgradeGlobalAwarenessMultiplier, gameState.globalAwarenessLevel) * GG_ALL_GAME_CONFIG.upgradeGlobalAwarenessCost);
+        // Atualizar a loja de prestígio
+        document.getElementById('prestige-points').textContent = formatNumber(gameState.prestigePoints);
+        document.getElementById('click-multiplier').textContent = gameState.clickMultiplier.toFixed(1);
+        document.getElementById('click-multiplier-cost').textContent = formatNumber(gameState.clickMultiplierCost);
+        document.getElementById('auto-collector-bonus').textContent = gameState.autoCollectorBonus;
+        document.getElementById('auto-collector-bonus-cost').textContent = formatNumber(gameState.autoCollectorBonusCost);
+        document.getElementById('event-chance').textContent = (gameState.eventChance * 100).toFixed(1);
+        document.getElementById('event-chance-cost').textContent = formatNumber(gameState.eventChanceCost);
+        document.getElementById('buy-click-multiplier').disabled = gameState.prestigePoints < gameState.clickMultiplierCost;
+        document.getElementById('buy-auto-collector-bonus').disabled = gameState.prestigePoints < gameState.autoCollectorBonusCost;
+        document.getElementById('buy-event-chance').disabled = gameState.prestigePoints < gameState.eventChanceCost;
+        // Novos upgrades
+        document.getElementById('green-innovation-level').textContent = gameState.greenInnovationLevel;
+        document.getElementById('upgrade-green-innovation').disabled = gameState.itemsCount < Math.pow(GG_ALL_GAME_CONFIG.upgradeGreenInnovationMultiplier, gameState.greenInnovationLevel) * GG_ALL_GAME_CONFIG.upgradeGreenInnovationCost;
+        document.getElementById('upgrade-green-innovation-cost').textContent = formatNumber(Math.pow(GG_ALL_GAME_CONFIG.upgradeGreenInnovationMultiplier, gameState.greenInnovationLevel) * GG_ALL_GAME_CONFIG.upgradeGreenInnovationCost);
+        document.getElementById('sustainable-logistics-level').textContent = gameState.sustainableLogisticsLevel;
+        document.getElementById('upgrade-sustainable-logistics').disabled = gameState.itemsCount < Math.pow(GG_ALL_GAME_CONFIG.upgradeSustainableLogisticsMultiplier, gameState.sustainableLogisticsLevel) * GG_ALL_GAME_CONFIG.upgradeSustainableLogisticsCost;
+        document.getElementById('upgrade-sustainable-logistics-cost').textContent = formatNumber(Math.pow(GG_ALL_GAME_CONFIG.upgradeSustainableLogisticsMultiplier, gameState.sustainableLogisticsLevel) * GG_ALL_GAME_CONFIG.upgradeSustainableLogisticsCost);
+        document.getElementById('prestige-multiplier').textContent = gameState.prestigeMultiplier.toFixed(1);
+        document.getElementById('prestige-multiplier-cost').textContent = formatNumber(gameState.prestigeMultiplierCost);
+        document.getElementById('buy-prestige-multiplier').disabled = gameState.prestigePoints < gameState.prestigeMultiplierCost;
+      }
+
+      function showMessage(text) {
+        const messageElement = document.getElementById('message');
+        messageElement.textContent = text;
+        setTimeout(() => {
+          messageElement.textContent = '';
+        }, GG_ALL_GAME_CONFIG.messageTimeout);
+      }
+
+      function calculateItemsPerClick() {
+        let baseItems = gameState.itemsPerClick * Math.pow(GG_ALL_GAME_CONFIG.clickUpgradeBase, gameState.clickUpgradeLevel);
+        let awarenessBonus = 1;
+        let prestigeBonus = Math.pow(GG_ALL_GAME_CONFIG.prestigeMultiplier, gameState.prestigeCount);
+        let recyclingTechBonus = 1 + gameState.recyclingTechLevel * 0.2; // Reduzido de 0.5 para 0.2
+        let globalAwarenessBonus = 1 + gameState.globalAwarenessLevel * 0.1; // Reduzido de 0.2 para 0.1
+        let clickMultiplierBonus = gameState.clickMultiplier;
+        let greenInnovationBonus = 1 + gameState.greenInnovationLevel * 0.15; // Reduzido de 0.3 para 0.15
+        let sustainableLogisticsBonus = 1 + gameState.sustainableLogisticsLevel * 0.05; // Reduzido de 0.1 para 0.05
+        return gameState.isEventActive ?
+          baseItems * GG_ALL_GAME_CONFIG.eventMultiplier * awarenessBonus * prestigeBonus * recyclingTechBonus * globalAwarenessBonus * clickMultiplierBonus * greenInnovationBonus * sustainableLogisticsBonus :
+          baseItems * awarenessBonus * prestigeBonus * recyclingTechBonus * globalAwarenessBonus * clickMultiplierBonus * greenInnovationBonus * sustainableLogisticsBonus;
+      }
+      document.getElementById('recycle-bin').addEventListener('click', function() {
+        const itemsGained = calculateItemsPerClick();
+        gameState.itemsCount += itemsGained;
+        showMessage(`+${formatNumber(Math.floor(itemsGained))} itens reciclados!`);
+        updateDisplay();
+      });
+      // Adicionando um evento de clique ao documento inteiro
+      document.addEventListener('click', function(event) {
+        // Verifica se o clique foi dentro do recycle-bin ou em qualquer lugar da página
+        if (event.target.closest('#recycle-bin') || event.target.id === 'recycle-bin') {
+          const itemsGained = calculateItemsPerClick();
+          gameState.itemsCount += itemsGained;
+          showMessage(`+${formatNumber(Math.floor(itemsGained))} itens reciclados!`);
+          updateDisplay();
+        }
+      });
+      document.getElementById('upgrade-click').addEventListener('click', function() {
+        if (gameState.itemsCount >= gameState.upgradeClickCost) {
+          gameState.itemsCount -= gameState.upgradeClickCost;
+          gameState.clickUpgradeLevel++;
+          gameState.upgradeClickCost = Math.floor(gameState.upgradeClickCost * Math.pow(GG_ALL_GAME_CONFIG.upgradeClickMultiplier, gameState.clickUpgradeLevel));
+          updateDisplay();
+          showMessage(`Eco-pontos por clique aumentados! Agora você ganha ${formatNumber(Math.floor(calculateItemsPerClick()))} eco-pontos por clique.`);
+        }
+      });
+      document.getElementById('upgrade-auto').addEventListener('click', function() {
+        if (gameState.itemsCount >= gameState.upgradeAutoCost) {
+          gameState.itemsCount -= gameState.upgradeAutoCost;
+          gameState.autoCollectors++;
+          gameState.upgradeAutoCost = Math.floor(gameState.upgradeAutoCost * GG_ALL_GAME_CONFIG.upgradeAutoMultiplier);
+          updateDisplay();
+          showMessage('Auto-Coletor adquirido! Sua reciclagem automática aumentou.');
+        }
+      });
+      document.getElementById('upgrade-efficiency').addEventListener('click', function() {
+        if (gameState.itemsCount >= gameState.upgradeEfficiencyCost) {
+          gameState.itemsCount -= gameState.upgradeEfficiencyCost;
+          gameState.efficiency *= 1.2;
+          gameState.upgradeEfficiencyCost = Math.floor(gameState.upgradeEfficiencyCost * GG_ALL_GAME_CONFIG.upgradeEfficiencyMultiplier);
+          updateDisplay();
+          showMessage('Eficiência melhorada! Seus Auto-Coletores estão mais produtivos.');
+        }
+      });
+      setInterval(function() {
+        const autoCollectorProduction = gameState.autoCollectors * gameState.efficiency * gameState.autoCollectorEfficiency;
+        const eventMultiplier = gameState.isEventActive ? GG_ALL_GAME_CONFIG.eventMultiplier : 1;
+        const negativeEventMultiplier = gameState.isNegativeEventActive ? GG_ALL_GAME_CONFIG.negativeEventMultiplier : 1;
+        gameState.itemsCount += autoCollectorProduction * eventMultiplier * negativeEventMultiplier;
+        updateDisplay();
+      }, GG_ALL_GAME_CONFIG.autoCollectorInterval);
+
+      function startSpecialEvent() {
+        gameState.isEventActive = true;
+        document.getElementById('event-banner').style.display = 'block';
+        document.getElementById('event-banner').textContent = 'Evento Especial: Dia Mundial da Reciclagem! Pontos dobrados por 1 minuto!';
+        showMessage('Evento Especial iniciado! Seus eco-pontos estão dobrados por 1 minuto!');
+        setTimeout(() => {
+          gameState.isEventActive = false;
+          document.getElementById('event-banner').style.display = 'none';
+          showMessage('O Evento Especial terminou. Obrigado por reciclar!');
+        }, GG_ALL_GAME_CONFIG.eventDuration);
+      }
+      setInterval(() => {
+        if (Math.random() < GG_ALL_GAME_CONFIG.eventChance && !gameState.isEventActive && !gameState.isNegativeEventActive) {
+          startSpecialEvent();
+        }
+        if (Math.random() < GG_ALL_GAME_CONFIG.negativeEventChance && !gameState.isEventActive && !gameState.isNegativeEventActive) {
+          startNegativeEvent();
+        }
+      }, 1000);
+
+      function startNegativeEvent() {
+        gameState.isNegativeEventActive = true;
+        document.getElementById('negative-event-banner').style.display = 'block';
+        document.getElementById('negative-event-banner').textContent = 'Evento Negativo: Problemas na reciclagem! Produção reduzida por 30 segundos!';
+        showMessage('Evento Negativo iniciado! Sua produção está reduzida por 30 segundos!');
+        setTimeout(() => {
+          gameState.isNegativeEventActive = false;
+          document.getElementById('negative-event-banner').style.display = 'none';
+          showMessage('O Evento Negativo terminou. A produção voltou ao normal!');
+        }, GG_ALL_GAME_CONFIG.negativeEventDuration);
+      }
+      updateDisplay();
+      // Função para calcular o próximo aumento de eco-pontos
+      function calculateNextEcoPointsIncrease() {
+        const currentEcoPoints = Math.floor(calculateItemsPerClick());
+        const nextEcoPoints = Math.floor(gameState.itemsPerClick * Math.pow(GG_ALL_GAME_CONFIG.clickUpgradeBase, gameState.clickUpgradeLevel + 1));
+        return nextEcoPoints - currentEcoPoints;
+      }
+      // Atualizar a dica do botão de upgrade de clique
+      function updateClickUpgradeTooltip() {
+        const nextIncrease = calculateNextEcoPointsIncrease();
+        const upgradeButton = document.getElementById('upgrade-click');
+        upgradeButton.title = `Aumenta os eco-pontos por clique em +${formatNumber(nextIncrease)}`;
+      }
+      // Chamar a função de atualização da dica sempre que o display for atualizado
+      const originalUpdateDisplay = updateDisplay;
+      updateDisplay = function() {
+        originalUpdateDisplay();
+        updateClickUpgradeTooltip();
+      };
+      // Inicializar a dica
+      updateClickUpgradeTooltip();
+      // Função de prestígio
+      function prestige() {
+        if (gameState.itemsCount >= GG_ALL_GAME_CONFIG.prestigeRequirement) {
+          const prestigePointsGained = 1; // Cada prestígio vale 1 ponto
+          gameState.prestigePoints += prestigePointsGained;
+          gameState.prestigeCount++;
+          gameState.itemsCount = 0;
+          gameState.itemsPerClick = GG_ALL_GAME_CONFIG.initialItemsPerClick;
+          gameState.upgradeClickCost = GG_ALL_GAME_CONFIG.initialUpgradeClickCost;
+          gameState.upgradeAutoCost = GG_ALL_GAME_CONFIG.initialUpgradeAutoCost;
+          gameState.upgradeEfficiencyCost = GG_ALL_GAME_CONFIG.initialUpgradeEfficiencyCost;
+          gameState.upgradeMultiplierCost = GG_ALL_GAME_CONFIG.initialUpgradeMultiplierCost;
+          gameState.autoCollectors = 0;
+          gameState.efficiency = 1;
+          gameState.clickUpgradeLevel = 0;
+          showMessage(`Prestígio alcançado! Você ganhou ${prestigePointsGained} ponto de prestígio. Seu total de pontos de prestígio agora é ${gameState.prestigePoints}`);
+          updateDisplay();
+        }
+      }
+      // Upgrade de tecnologia de reciclagem
+      function upgradeRecyclingTech() {
+        const cost = Math.pow(GG_ALL_GAME_CONFIG.upgradeRecyclingTechMultiplier, gameState.recyclingTechLevel) * GG_ALL_GAME_CONFIG.upgradeRecyclingTechCost;
+        if (gameState.itemsCount >= cost) {
+          gameState.itemsCount -= cost;
+          gameState.recyclingTechLevel++;
+          showMessage(`Tecnologia de Reciclagem melhorada para o nível ${gameState.recyclingTechLevel}!`);
+          updateDisplay();
+        }
+      }
+
+      function upgradeGlobalAwareness() {
+        const cost = Math.pow(GG_ALL_GAME_CONFIG.upgradeGlobalAwarenessMultiplier, gameState.globalAwarenessLevel) * GG_ALL_GAME_CONFIG.upgradeGlobalAwarenessCost;
+        if (gameState.itemsCount >= cost) {
+          gameState.itemsCount -= cost;
+          gameState.globalAwarenessLevel++;
+          showMessage(`Conscientização Global aumentada para o nível ${gameState.globalAwarenessLevel}!`);
+          updateDisplay();
+        }
+      }
+
+      function upgradeGreenInnovation() {
+        const cost = Math.pow(GG_ALL_GAME_CONFIG.upgradeGreenInnovationMultiplier, gameState.greenInnovationLevel) * GG_ALL_GAME_CONFIG.upgradeGreenInnovationCost;
+        if (gameState.itemsCount >= cost) {
+          gameState.itemsCount -= cost;
+          gameState.greenInnovationLevel++;
+          showMessage(`Inovação Verde impulsionada para o nível ${gameState.greenInnovationLevel}!`);
+          updateDisplay();
+        }
+      }
+
+      function upgradeSustainableLogistics() {
+        const cost = Math.pow(GG_ALL_GAME_CONFIG.upgradeSustainableLogisticsMultiplier, gameState.sustainableLogisticsLevel) * GG_ALL_GAME_CONFIG.upgradeSustainableLogisticsCost;
+        if (gameState.itemsCount >= cost) {
+          gameState.itemsCount -= cost;
+          gameState.sustainableLogisticsLevel++;
+          showMessage(`Logística Sustentável otimizada para o nível ${gameState.sustainableLogisticsLevel}!`);
+          updateDisplay();
+        }
+      }
+
+      function buyClickMultiplier() {
+        if (gameState.prestigePoints >= gameState.clickMultiplierCost) {
+          gameState.prestigePoints -= gameState.clickMultiplierCost;
+          gameState.clickMultiplier += GG_ALL_GAME_CONFIG.clickMultiplierIncrease;
+          gameState.clickMultiplierCost = Math.ceil(gameState.clickMultiplierCost * 1.5);
+          showMessage(`Multiplicador de Clique aumentado para ${gameState.clickMultiplier.toFixed(1)}x!`);
+          updateDisplay();
+        }
+      }
+
+      function buyAutoCollectorBonus() {
+        if (gameState.prestigePoints >= gameState.autoCollectorBonusCost) {
+          gameState.prestigePoints -= gameState.autoCollectorBonusCost;
+          gameState.autoCollectorBonus += GG_ALL_GAME_CONFIG.autoCollectorBonusIncrease;
+          gameState.autoCollectorBonusCost = Math.ceil(gameState.autoCollectorBonusCost * 1.5);
+          showMessage(`Bônus de Auto-Coletor aumentado para ${gameState.autoCollectorBonus}%!`);
+          updateDisplay();
+        }
+      }
+
+      function buyEventChance() {
+        if (gameState.prestigePoints >= gameState.eventChanceCost) {
+          gameState.prestigePoints -= gameState.eventChanceCost;
+          gameState.eventChance += GG_ALL_GAME_CONFIG.eventChanceIncrease / 100;
+          gameState.eventChanceCost = Math.ceil(gameState.eventChanceCost * 1.5);
+          showMessage(`Chance de Evento aumentada para ${(gameState.eventChance * 100).toFixed(1)}%!`);
+          updateDisplay();
+        }
+      }
+
+      function buyPrestigeMultiplier() {
+        if (gameState.prestigePoints >= gameState.prestigeMultiplierCost) {
+          gameState.prestigePoints -= gameState.prestigeMultiplierCost;
+          gameState.prestigeMultiplier += GG_ALL_GAME_CONFIG.prestigeMultiplierIncrease;
+          gameState.prestigeMultiplierCost = Math.ceil(gameState.prestigeMultiplierCost * 1.5);
+          showMessage(`Multiplicador de Prestígio aumentado para ${gameState.prestigeMultiplier.toFixed(1)}x!`);
+          updateDisplay();
+        }
+      }
+      // Adicionar event listeners para os novos botões
+      document.getElementById('prestige-button').addEventListener('click', prestige);
+      document.getElementById('upgrade-recycling-tech').addEventListener('click', upgradeRecyclingTech);
+      document.getElementById('upgrade-global-awareness').addEventListener('click', upgradeGlobalAwareness);
+      document.getElementById('upgrade-auto-efficiency').addEventListener('click', upgradeAutoEfficiency);
+      document.getElementById('upgrade-green-innovation').addEventListener('click', upgradeGreenInnovation);
+      document.getElementById('upgrade-sustainable-logistics').addEventListener('click', upgradeSustainableLogistics);
+
+      function upgradeAutoEfficiency() {
+        if (gameState.itemsCount >= gameState.upgradeAutoEfficiencyCost) {
+          gameState.itemsCount -= gameState.upgradeAutoEfficiencyCost;
+          gameState.autoCollectorEfficiency *= 1.2;
+          gameState.upgradeAutoEfficiencyCost = Math.floor(gameState.upgradeAutoEfficiencyCost * GG_ALL_GAME_CONFIG.upgradeAutoEfficiencyMultiplier);
+          showMessage(`Eficiência dos Auto-Coletores melhorada para ${gameState.autoCollectorEfficiency.toFixed(2)}x!`);
+          updateDisplay();
+        }
+      }
+      // Inicializar o jogo
+      updateDisplay();
+      // Adicionar event listeners para os novos botões da loja de prestígio
+      document.getElementById('buy-click-multiplier').addEventListener('click', buyClickMultiplier);
+      document.getElementById('buy-auto-collector-bonus').addEventListener('click', buyAutoCollectorBonus);
+      document.getElementById('buy-event-chance').addEventListener('click', buyEventChance);
+      document.getElementById('buy-prestige-multiplier').addEventListener('click', buyPrestigeMultiplier);
+      // Funções para o menu de estatísticas
+      function updateStats() {
+        const statsList = document.getElementById('stats-list');
+        statsList.innerHTML = `
+<div class="stat-item">Total de Itens Reciclados: ${formatNumber(Math.floor(gameState.itemsCount))}</div>
+<div class="stat-item">Itens por Clique: ${formatNumber(Math.floor(calculateItemsPerClick()))}</div>
+<div class="stat-item">Auto-Coletores: ${gameState.autoCollectors}</div>
+<div class="stat-item">Eficiência dos Auto-Coletores: ${gameState.autoCollectorEfficiency.toFixed(2)}x</div>
+<div class="stat-item">Nível de Tecnologia de Reciclagem: ${gameState.recyclingTechLevel}</div>
+<div class="stat-item">Nível de Conscientização Global: ${gameState.globalAwarenessLevel}</div>
+<div class="stat-item">Nível de Inovação Verde: ${gameState.greenInnovationLevel}</div>
+<div class="stat-item">Nível de Logística Sustentável: ${gameState.sustainableLogisticsLevel}</div>
+<div class="stat-item">Prestígios: ${gameState.prestigeCount}</div>
+<div class="stat-item">Pontos de Prestígio: ${formatNumber(gameState.prestigePoints)}</div>
+<div class="stat-item">Multiplicador de Clique: ${gameState.clickMultiplier.toFixed(1)}x</div>
+<div class="stat-item">Bônus de Auto-Coletor: ${gameState.autoCollectorBonus}%</div>
+<div class="stat-item">Chance de Evento: ${(gameState.eventChance * 100).toFixed(1)}%</div>
+<div class="stat-item">Multiplicador de Prestígio: ${gameState.prestigeMultiplier.toFixed(1)}x</div>
+`;
+      }
+      const statsMenu = document.getElementById('stats-menu');
+      const statsModal = document.getElementById('stats-modal');
+      const closeBtn = document.getElementsByClassName('close')[0];
+      statsMenu.onclick = function() {
+        statsModal.style.display = 'block';
+        updateStats();
+      }
+      closeBtn.onclick = function() {
+        statsModal.style.display = 'none';
+      }
+      window.onclick = function(event) {
+        if (event.target == statsModal) {
+          statsModal.style.display = 'none';
+        }
+      }
+      setInterval(updateStats, GG_ALL_GAME_CONFIG.statsUpdateInterval);
+      // Função para exibir mensagens de conscientização
+      function showAwarenessMessage() {
+        const popup = document.getElementById('awareness-popup');
+        const message = GG_ALL_GAME_CONFIG.awarenessMessages[Math.floor(Math.random() * GG_ALL_GAME_CONFIG.awarenessMessages.length)];
+        popup.textContent = message;
+        popup.style.display = 'block';
+        setTimeout(() => {
+          popup.style.display = 'none';
+        }, 5000); // Exibe a mensagem por 5 segundos
+      }
+      // Iniciar o intervalo para exibir mensagens de conscientização
+      setInterval(showAwarenessMessage, GG_ALL_GAME_CONFIG.awarenessInterval);
+    })();
+  </script>
+
+</body>
+
+</html>
